@@ -40,7 +40,7 @@ public class GameView extends GridLayout {
 
 
         addCards(GetCardWidth(), GetCardWidth());
-        startGame();
+       // startGame();
 
         setOnTouchListener(new View.OnTouchListener(){
 
@@ -61,18 +61,18 @@ public class GameView extends GridLayout {
                          if( Math.abs(offsetX)>Math.abs(offsetY)){
                              if(offsetX<-5){
                                  swipeLeft();
-                                 addRandomNum();
-                                 System.out.println("Left");
+                                 //addRandomNum();
+                                 //System.out.println("Left");
                              }else if (offsetX>5){
-                                 //swipeRight();
+                                 swipeRight();
                                  System.out.println("Up");
                              }
                          }else{
                              if(offsetY<-5){
-                                 //swipeUp();
+                                 swipeUp();
                                  System.out.println("Up");
                              }else if(offsetY>5){
-                                 //swipeDown();
+                                 swipeDown();
                                  Log.d("screen","down");
                              }
                          }
@@ -87,7 +87,6 @@ public class GameView extends GridLayout {
 
     }
 
-
     private int GetCardWidth(){
         DisplayMetrics displayMetrics;
         displayMetrics = getResources().getDisplayMetrics();
@@ -96,16 +95,17 @@ public class GameView extends GridLayout {
 
         return (cardWidth-10)/4;
     }
-   // @Override
+   @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        //Becasue of two init functions!!!!!!
         // screen orientation == portrait this fuction only run once before each time
         super.onSizeChanged(w, h, oldw, oldh);
 
         int cardWidth = (Math.min(w, h)-10)/4; // each card's width&height
 
         //int cardHeight = cardWidth;
-        addCards(cardWidth, cardWidth);
-        startGame();
+        //addCards(cardWidth, cardWidth); //because of here reset the screen!!
+       startGame();
 
 
     }
@@ -133,7 +133,6 @@ public class GameView extends GridLayout {
             }
         }
     }
-
     private void addRandomNum(){
 
         emptyPositions.clear();
@@ -150,7 +149,8 @@ public class GameView extends GridLayout {
             Point p = emptyPositions.remove((int) (Math.random() * emptyPositions.size()));
             cardsMap[p.x][p.y].setNum(Math.random()>0.2?2:4);
         }catch (Exception e){
-            cardsMap[0][0].setNum(Math.random()>0.2?2:4);
+            //cardsMap[0][0].setNum(Math.random()>0.2?2:4);
+            System.out.println("empty");
         }
 
 
@@ -158,52 +158,105 @@ public class GameView extends GridLayout {
     }
 
 
-
-    private void swipeLeft(){
-        System.out.println("Swipe right!");
-        // should instead move all row left if the
-        /*for (int i =0; i<4; i++){//row
-            for(int j=0; j<4; j++) {//col
-                cardsMap[i][j].setNum(100);
-                   for(int nextJ=j+1; nextJ<4; nextJ++){
-                       if(cardsMap[i][nextJ].getNum()>0){ // for each one check the right left can be merge or move
-                           cardsMap[i][j].setNum(cardsMap[i][nextJ].getNum());
-                            if(cardsMap[i][j].getNum()<=0) {
-                                cardsMap[i][j].setNum(cardsMap[i][nextJ].getNum());
-                                cardsMap[i][nextJ].setNum(0);
-                                emptyPositions.add(new Point(i, nextJ));
-                                //j--;
-                                //break;
-                            }else if(cardsMap[i][j].equals(cardsMap[i][nextJ])){
-                                cardsMap[i][j].setNum(cardsMap[i][j].getNum()*2);
-                                cardsMap[i][nextJ].setNum(0);
-
+    private void swipeLeft() {
+        for (int i = 0; i < 4; i++) {//row
+            for (int j = 0; j < 4; j++) {//col
+                //for each empty position find a non-empty posistion to merge
+                for(int j1=j+1; j1 < 4; j1++){
+                    if(cardsMap[i][j1].getNum()>0){
+                        if(cardsMap[i][j].getNum()<=0){//move
+                            cardsMap[i][j].setNum(cardsMap[i][j1].getNum());
+                            cardsMap[i][j1].setNum(0);
+                            j--;//for check for merge
+                        }else if(cardsMap[i][j].equals(cardsMap[i][j1])){//merge
+                            cardsMap[i][j].setNum(cardsMap[i][j].getNum() * 2);
+                            cardsMap[i][j1].setNum(0);
                         }
-
+                        break;
                     }
                 }
-
-*/
+            }
+        }
 
         addRandomNum();
         //checkComplete();
     }
-    private void swipeRight(){
+
+    private void swipeRight() {
+        for (int i = 0; i < 4; i++) {//row
+            for (int j = 3; j >=0; j--) {//col
+                //How hard is to merge and move?!!!
+
+                for(int j1=j-1; j1 >=0; j1--){
+                    if(cardsMap[i][j1].getNum()>0){
+                        if(cardsMap[i][j].getNum()<=0){//move
+                            cardsMap[i][j].setNum(cardsMap[i][j1].getNum());
+                            cardsMap[i][j1].setNum(0);
+                            j++;//for check for merge
+                        }else if(cardsMap[i][j].equals(cardsMap[i][j1])){//merge
+                            cardsMap[i][j].setNum(cardsMap[i][j].getNum() * 2);
+                            cardsMap[i][j1].setNum(0);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        addRandomNum();
 
     }
-    private void swipeUp(){
 
+    private void swipeUp(){//row
+            for (int j = 0; j < 4; j++){
+                for (int i = 0; i < 4; i++){//col
+                //How hard is to merge and move?!!!
+
+                    for(int i1=i+1; i1 <4; i1++){
+                        if(cardsMap[i1][j].getNum()>0){
+                            if(cardsMap[i][j].getNum()<=0){//move
+                                cardsMap[i][j].setNum(cardsMap[i1][j].getNum());
+                                cardsMap[i1][j].setNum(0);
+                                i--;//for check for merge
+                            }else if(cardsMap[i][j].equals(cardsMap[i1][j])){//merge
+                                cardsMap[i][j].setNum(cardsMap[i][j].getNum() * 2);
+                                cardsMap[i1][j].setNum(0);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        addRandomNum();
     }
-    private void swipeDown(){
+    private void swipeDown() {
+        for (int j = 0; j < 4; j++) {
+            for (int i = 3; i >=0; i--) {//col
+                //How hard is to merge and move?!!!
 
+                for (int i1 = i-1 ; i1 >=0; i1--) {
+                    if (cardsMap[i1][j].getNum() > 0) {
+                        if (cardsMap[i][j].getNum() <= 0) {//move
+                            cardsMap[i][j].setNum(cardsMap[i1][j].getNum());
+                            cardsMap[i1][j].setNum(0);
+                            i++;//for check for merge
+                        } else if (cardsMap[i][j].equals(cardsMap[i1][j])) {//merge
+                            cardsMap[i][j].setNum(cardsMap[i][j].getNum() * 2);
+                            cardsMap[i1][j].setNum(0);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        addRandomNum();
     }
-
 
 
     private Card[][] cardsMap = new Card[4][4];
     private List<Point> emptyPositions = new ArrayList<Point>();
 
 }
+ 
 /*
 package com.example.my2048;
 
